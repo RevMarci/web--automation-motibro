@@ -36,7 +36,7 @@ async function saveData(filePath, data) {
 async function register(newTrainings, oldTrainings) {
     // Launch the browser and open a new blank page
     console.log("Launch");
-    const browser = await puppeteer.launch({ headless: false });
+    const browser = await puppeteer.launch();
     console.log("New Page");
     const page = await browser.newPage();
 

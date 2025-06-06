@@ -1,0 +1,27 @@
+name: Weekly Node Script
+
+on:
+  schedule:
+    - cron: '0 6 * * 2'
+  workflow_dispatch:
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    env:
+      MOTIBRO_EMAIL: ${{ secrets.MOTIBRO_EMAIL }}
+      MOTIBRO_PASSWORD: ${{ secrets.MOTIBRO_PASSWORD }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run script
+        run: node automat.js

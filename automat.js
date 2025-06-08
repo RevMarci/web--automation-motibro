@@ -1,26 +1,39 @@
-import puppeteer from 'puppeteer';
 import 'dotenv/config';
 import data from './data.json' with { type: 'json' };
 import { writeFile } from 'fs/promises';
+import fs from 'fs';
+
+const logStream = fs.createWriteStream('log.txt', { flags: 'a' });
+console.log = (...args) => {
+    logStream.write(new Date().toISOString() + ' ' + args.join(' ') + '\n');
+};
 
 (async () => {
-    console.log(data);
-    const lastRunDate = new Date(data.lastRun);
-    const nowDate = new Date();
-    const weekInMs = 7 * 24 * 60 * 60 * 1000;
+    try {
+        console.log('---------------- Script starts ----------------');
+        console.log(`Last run: ${data.lastRun}`);
+        const lastRunDate = new Date(data.lastRun);
+        const nowDate = new Date();
+        const weekInMs = 7 * 24 * 60 * 60 * 1000;
 
-    const oldTrainings = data.trainings;
-    console.log(oldTrainings);
-    let newTrainings = [];
+        const oldTrainings = data.trainings;
+        let newTrainings = [];
 
-    if (nowDate - lastRunDate > weekInMs) {
-        console.log("Eltelt");
-        await register(newTrainings, oldTrainings);
-        data.lastRun = nowDate.toISOString();
-        data.trainings = newTrainings;
+        if (nowDate - lastRunDate > weekInMs) {
+            console.log("Run register");
+
+            const puppeteer = await import('puppeteer');
+            await register(newTrainings, oldTrainings, puppeteer);
+            data.lastRun = nowDate.toISOString();
+            data.trainings = newTrainings;
+
+            await saveData('./data.json', data);
+        }
+
+        console.log('Script finished.');
+    } catch (err) {
+        console.error("Unexpected error:", err);
     }
-
-    await saveData('./data.json', data);
 })();
 
 async function saveData(filePath, data) {
@@ -33,22 +46,20 @@ async function saveData(filePath, data) {
     }
 }
 
-async function register(newTrainings, oldTrainings) {
-    // Launch the browser and open a new blank page
-    console.log("Launch");
+async function register(newTrainings, oldTrainings, puppeteer) {
+    console.log("Launch browser");
     const browser = await puppeteer.launch();
     console.log("New Page");
     const page = await browser.newPage();
 
-    // Navigate the page to a URL
-    console.log("Goto");
+    console.log("Goto signin");
     await page.goto('https://www.motibro.com/signin', { waitUntil: 'networkidle0' });
 
-    // Type into search box
-    console.log("Type");
+    // console.log("Type email, password");
     await page.type('#email', process.env.MOTIBRO_EMAIL);
     await page.type('#password', process.env.MOTIBRO_PASSWORD);
 
+    console.log("Log in");
     await page.click('.btn.btn-lg');
     await page.waitForNavigation({ waitUntil: 'networkidle0' });
 
@@ -64,7 +75,7 @@ async function register(newTrainings, oldTrainings) {
 
         const textHandle = await tds[3].getProperty('textContent');
         const text = await textHandle.jsonValue();
-        console.log(text.trim());
+        // console.log(text.trim());
 
         if (text.trim() === "Felnőtt karate" || text.trim() === "Funkcionális edzés") {
             const link = await tds[5].$('div > a');
@@ -75,7 +86,7 @@ async function register(newTrainings, oldTrainings) {
 
             const rowIdHandle = await row.getProperty('id');
             const rowId = await rowIdHandle.jsonValue();
-            console.log(rowId);
+            // console.log(rowId);
             newTrainings.push(rowId);
             if (oldTrainings.includes(rowId)) {
                 continue;
@@ -86,6 +97,7 @@ async function register(newTrainings, oldTrainings) {
             const linkText = await linkTextHandle.jsonValue();
 
             if (linkText.trim() === "Bejelentkezés") {
+                console.log(`Sign up for training: ${rowId} - ${text.trim()}`);
                 await link.click();
             }
         }

@@ -1,0 +1,15 @@
+2025-06-08T20:27:43.233Z ---------------- Script starts ----------------
+2025-06-08T20:27:43.235Z Last run: 2025-06-08T20:21:37.087Z
+2025-06-08T20:27:43.235Z Script finished.
+2025-06-08T20:29:15.392Z ---------------- Script starts ----------------
+2025-06-08T20:29:15.394Z Last run: 2024-06-08T20:27:56.093Z
+2025-06-08T20:29:15.394Z Run register
+2025-06-08T20:29:15.808Z Launch browser
+2025-06-08T20:29:16.335Z New Page
+2025-06-08T20:29:16.701Z Goto signin
+2025-06-08T20:29:22.193Z Log in
+2025-06-08T20:29:26.400Z Sign up for training: tr_5301456 - Funkcionális edzés
+2025-06-08T20:29:26.512Z Sign up for training: tr_5288785 - Felnőtt karate
+2025-06-08T20:29:26.623Z Sign up for training: tr_5288888 - Funkcionális edzés
+2025-06-08T20:29:28.188Z Data saved
+2025-06-08T20:29:28.188Z Script finished.
